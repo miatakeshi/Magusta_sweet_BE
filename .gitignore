@@ -1,0 +1,28 @@
+# Java specific
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven
+target/
+*.log
+
+# Eclipse and IntelliJ files
+.project
+.classpath
+.idea/
+*.iml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Spring Boot
+*.env
+*.swp
+
+# Logs
+*.log
+
+src/main/resources
