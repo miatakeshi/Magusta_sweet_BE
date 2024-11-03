@@ -57,11 +57,19 @@ public class WordService {
 
         JSONObject contentJson = new JSONObject(content);
 
+        int level;
+        try {
+            level = Integer.parseInt(contentJson.getString("level"));
+        } catch (NumberFormatException | NullPointerException e) {
+            level = 0; // Or any default value you'd like to use if parsing fails
+        }
+
+
         // Create the dictionary entry
         DictionaryWord newWord = new DictionaryWord(
                 word,
                 contentJson.getString("number"),
-                Integer.parseInt(contentJson.getString("level")),
+                level,
                 contentJson.getString("person"),
                 contentJson.getString("degree"),
                 contentJson.getString("parts"), // Convert JSONArray to String if necessary
@@ -88,18 +96,14 @@ public class WordService {
 
             DictionaryWord newWord1 = this.createUpdateWord(targetWord);
 
-            //no es basica
             if(newWord1.getEstonian() != newWord1.getBasicForm()){
                 DictionaryWord foundWord2 = searchDictionaryWord(newWord1.getBasicForm());
 
                 if (foundWord2 == null) {
-                    //no es basica y hay que crear la basica
                     DictionaryWord newWord2 = this.createUpdateWord(newWord1.getBasicForm());
                     newID = wordRepository.createDictionaryWord(newWord2);
-                    System.out.println("creada basica palabra "+ word + "ID: " + newID);
                 }else{
                     newID = foundWord2.getId();
-                    System.out.println("encotrada basica palabra "+ word + "ID: " + newID);
                 }
 
                 newWord1.setBasicWordId(newID);

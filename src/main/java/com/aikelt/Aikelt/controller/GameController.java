@@ -2,8 +2,10 @@ package com.aikelt.Aikelt.controller;
 
 import com.aikelt.Aikelt.model.Game;
 import com.aikelt.Aikelt.service.GameService;
+import org.json.JSONArray;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -65,6 +67,22 @@ public class GameController {
         return this.gameService.getGame(user);
 
     }
+
+    @PostMapping("/finishGame")
+    public void finishGame(@RequestBody Map<String, Object> requestBody) {
+        // Extract userID from requestBody
+        UUID userID = UUID.fromString((String) requestBody.get("userID"));
+
+        // Extract the words array
+        JSONArray wordsList = new JSONArray((List<?>) requestBody.get("wordsList"));
+
+        // Call the service with the extracted userID and wordsList
+        gameService.finishGame(wordsList, userID);
+    }
+
+
+
+
 }
 
 

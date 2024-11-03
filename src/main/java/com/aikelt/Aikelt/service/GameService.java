@@ -5,6 +5,7 @@ import com.aikelt.Aikelt.dto.InitialSentenceResponse;
 import com.aikelt.Aikelt.model.DictionaryWord;
 import com.aikelt.Aikelt.model.EstonianWord;
 import com.aikelt.Aikelt.model.Game;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +33,15 @@ public class GameService {
 
         public void createGame(Game.GameType type, int length, UUID user) {
 
-                this.endGame(user);
+                this.deleteGame(user);
 
                 if (length < 3 || length > 10) {
                         throw new IllegalArgumentException("Length must be between 3 and 10 characters.");
                 }
                 String seeds = wordService.findSample(5, 10, user);
+
+                System.out.println("\u001B[31mseeds: " + seeds + "\u001B[0m");
+
                 JSONObject randomSentence = openAIService.randomSentence(type.toString(), length, seeds);
                 Integer tokens = randomSentence.getJSONObject("usage").getInt("total_tokens");
                 String sentence = randomSentence.getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content");
@@ -51,8 +55,6 @@ public class GameService {
                 gameMap.put(user, game);
                 this.updateGameEEWords(user);
         }
-
-        //List<JSONObject>
 
         public void updateGameEEWords(UUID user) {
                 // Protect against the absence of the game:
@@ -98,6 +100,12 @@ public class GameService {
                 }
         }
 
+        public void finishGame(JSONArray jsonArray, UUID user){
+                Game game = getGame(user);
+                wordService.updatePersonalWords(jsonArray, user);
+                this.deleteGame(user);
+        }
+
 
 
 
@@ -105,9 +113,11 @@ public class GameService {
                 return gameMap.get(playerId);
         }
 
-        public void endGame(UUID playerId) {
+        public void deleteGame(UUID playerId) {
                 gameMap.remove(playerId);
         }
+
+
 
         public boolean hasGame(UUID playerId) {
                 return gameMap.containsKey(playerId);
@@ -137,6 +147,9 @@ public class GameService {
                         // Handle the case where the translation cannot be parsed to an integer
                         System.err.println("Error parsing total points from translation: " + e.getMessage());
                 }
+
+                game.setStep(2);
+
         }
 }
 

@@ -82,7 +82,7 @@ public class JdbcWordRepository {
         }
 
         // Use parameterized queries to prevent SQL injection
-        String sql = "SELECT * FROM personalWord WHERE userId = ? AND state = 'live' ORDER BY halo ASC LIMIT ?";
+        String sql = "SELECT * FROM personalWord WHERE userId = ? AND state = 'LIVE' ORDER BY halo ASC LIMIT ?";
 
         // Execute query with parameters for usedID and firstGroup
         List<PersonalWord> list = jdbcClient.sql(sql)
@@ -194,7 +194,7 @@ public class JdbcWordRepository {
             // Check if the word already exists
             UUID existingId = jdbcClient.sql(checkSql)
                     .param(1, personalWord.getUserId())
-                    .param(2, personalWord.getId())
+                    .param(2, personalWord.getDictionaryWordId())
                     .query(UUID.class)
                     .optional()
                     .orElse(null);
@@ -211,11 +211,13 @@ public class JdbcWordRepository {
             LocalDateTime now = LocalDateTime.now();
             String formattedTimestamp = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
+            //System.out.println("\u001B[34mInserting PersonalWord - ID: " + id + ", User ID: " + personalWord.getUserId() + ", Dictionary Word ID: " + personalWord.getId() + ", Timestamp: " + formattedTimestamp + ", Estonian: " + personalWord.getEstonian() + ", Halo: " + personalWord.getHalo() + ", Level: " + 1 + ", State: LIVE\u001B[0m");
+
             // Insert a new PersonalWord with generated ID and current timestamp
             jdbcClient.sql(insertSql)
                     .param(1, id)                                    // Generated UUID
                     .param(2, personalWord.getUserId())              // User ID
-                    .param(3, personalWord.getId()) // Dictionary Word ID
+                    .param(3, personalWord.getDictionaryWordId()) // Dictionary Word ID
                     .param(4, formattedTimestamp)                    // Current timestamp
                     .param(5, personalWord.getEstonian())            // Estonian word
                     .param(6, personalWord.getHalo())                // Halo value
@@ -270,10 +272,11 @@ public class JdbcWordRepository {
 
     public boolean showableWord(UUID userId, String word) {
         // SQL query to check for the presence and state of the word for the user
+
         String sql = """
         SELECT CASE 
                    WHEN COUNT(*) = 0 THEN TRUE    -- Word not found for user, so it's showable
-                   WHEN state = 'live' THEN TRUE  -- Word found and is in 'live' state, so it's showable
+                   WHEN state = 'LIVE' THEN TRUE  -- Word found and is in 'live' state, so it's showable
                    ELSE FALSE                     -- Word found but not in 'live' state
                END AS is_showable
         FROM PersonalWord
