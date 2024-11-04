@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,8 +21,9 @@ public class OpenAIService {
     @Value("${openai.api.key}")
     private String apiKey;
 
-    public OpenAIService(WebClient webClient) {
-        this.webClient = webClient;
+    @Autowired
+    public OpenAIService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
     }
 
     public JSONObject callOpenAI(List<Map<String, Object>> messages) {

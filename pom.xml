@@ -90,6 +90,13 @@
             <version>20230227</version> <!-- Check for latest version -->
         </dependency>
 
+		<!-- PostgreSQL Driver -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 
     </dependencies>
 
